@@ -1,5 +1,35 @@
 import urllib
+import urllib2
 import re
-url = 
-request = 
-response = 
+import sys
+reload(sys)
+sys.setdefaultencoding( "utf-8" )
+url = 'http://eis.whu.edu.cn/channels/9.html'
+user_agent = 'Mozilla/5.0 (X11; Linux x86_64)'
+headers = { 'User-Agent' : user_agent }
+try:
+    request = urllib2.Request(url,headers = headers)
+    response = urllib2.urlopen(request)
+    content = response.read().decode('utf-8')
+    pattern = re.compile('<A href="http://(.*?)"><SPAN.*?0000ff>(.*?)<?FONT>',re.S)
+    items = re.findall(pattern,content)
+    fileName = "information1.txt"
+    f = open(fileName,"w+")
+    for item in items:
+	if item[0] !='202.114.118.33:6060/site/query/Teacher.aspx?id=00007304' and item[0] != '202.114.118.33:6060/site/query/Teacher.aspx?id=00007596':
+    	    request1 = urllib2.Request('http://'+item[0],headers = headers)
+    	    response1 = urllib2.urlopen(request1)
+    	    content1 = response1.read().decode('utf-8')
+            pattern1 = re.compile('<td bgcolor=.*?><div style.*?>(.*?)</div>',re.S)
+            pattern2 = re.compile('<td height=.*?><div style.*?>(.*?)</div></td>',re.S)
+            inf = re.findall(pattern1,content1)
+            pro = re.findall(pattern2,content1)
+        for i in inf:
+	    f.write(i+'\n')
+        f.write(pro[7]+'\n'+pro[8]+'\n')
+    f.close()
+except urllib2.URLError, e:
+    if hasattr(e,"code"):
+        print e.code
+    if hasattr(e,"reason"):
+        print e.reason
